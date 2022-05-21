@@ -44,7 +44,5 @@
           name: mydata
           image: hello-world
 
-      - debug: 
-          msg: "chetan"
 ...
 
