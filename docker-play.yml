@@ -1,0 +1,48 @@
+---
+  - name: installing and creating a docker container through ansible 
+    host: web_server
+    tasks:
+      - name: remove any existing docker version
+        apt:
+          name: {{ item }}
+          state: absent
+        with_items:
+          - docker
+          - docker-engine
+          - docker.io
+          - containerd
+          - runc
+
+      - name: install required packages
+        apt:
+          name: {{ item }}
+          state: present
+        with_items: 
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+
+      - name: adding Docker’s official GPG key
+        shell: "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg"
+
+      - name: setting stable repo
+        shell: >
+                'echo \
+               "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+               $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
+
+      - name: Install Docker Engine
+        apt:
+          name: {{ item }}
+        with_items: 
+          - docker-ce 
+          - docker-ce-cli 
+          - containerd.io 
+          - docker-compose-plugin
+
+      - name: verify docker is installed 
+        docker_container:
+          name: mydata
+          image: hello-world
+                 
